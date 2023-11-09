@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Using std::async and std::future</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Using std::async and std::future</h1>
+        </header>
+        <a href="prev.html" class="button">Go to Previous Page</a>
+        <main>
+            <h2>Example 7: Using std::async and std::future</h2>
+            <p>Filename: <code>7.md</code></p>
+            <section>
+                <p>
+                    This example uses <code>std::async</code> to start a task that runs
+                    asynchronously and <code>std::future</code> to obtain the result.
+                </p>
+                <pre>
+                    <code class="lang-cpp">
+#include &lt;iostream&gt;
+#include &lt;future&gt;
+
+int compute() {
+    return 2 + 2;
+}
+
+int main() {
+    std::future&lt;int&gt; result = std::async(compute);
+    std::cout << "Waiting for the result..." &lt;&lt; std::endl;
+    std::cout << "The result is " << result.get() &lt;&lt; std::endl;
+    return 0;
+}
+                    </code>
+                </pre>
+                <p>Compile with:</p>
+                <pre>
+                    <code class="lang-bash">
+g++ -std=c++11 -pthread -o async_future 7.cpp
+                    </code>
+                </pre>
+            </section>
+        </main>
+        <a href="prev.html" class="button">Go to Previous Page</a>
+        <footer>
+            <p>&copy; 2023 Using std::async and std::future. All rights reserved.</p>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thread with Member Function</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Thread with Member Function</h1>
+    </header>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <main>
+        <h2>Example 4: Thread with Member Function</h2>
+        <p>Filename: <code>member_thread.md</code></p>
+        <section>
+            <p>This example shows how to create a thread that runs a member function of a class.</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+
+class Hello {
+public:
+    void operator()() const {
+        std::cout << "Hello from a thread!" &lt;&lt; std::endl;
+    }
+};
+
+int main() {
+    Hello helloObject;
+    std::thread t(helloObject);
+    t.join();
+    return 0;
+}
+            </code></pre>
+            <p>Compile with:</p>
+            <pre><code class="lang-bash">g++ -std=c++11 -pthread -o member_thread member_thread.cpp
+            </code></pre>
+        </section>
+    </main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <footer>
+        <p>&copy; 2023 Thread with Member Function. All rights reserved.</p>
+    </footer>
+</body>
+</html>

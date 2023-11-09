@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Using a Lambda as a Thread Function</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Using a Lambda as a Thread Function</h1>
+    </header>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <main>
+        <h2>Example 2: Using a Lambda as a Thread Function</h2>
+        <p>Filename: <code>lambda_thread.md</code></p>
+        <section>
+            <p>In this example, a lambda function is used to create a thread in C++11.</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+
+int main() {
+    // Launch a thread with a lambda expression
+    std::thread t([](){
+        std::cout << "Hello from a thread!" &lt;&lt; std::endl;
+    });
+
+    t.join(); // Join the thread with the main thread
+    return 0;
+}
+            </code></pre>
+            <p>Compile with:</p>
+            <pre><code class="lang-bash">g++ -std=c++11 -pthread -o lambda_thread lambda_thread.cpp
+            </code></pre>
+        </section>
+    </main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <footer>
+        <p>&copy; 2023 Using a Lambda as a Thread Function. All rights reserved.</p>
+    </footer>
+</body>
+</html>
