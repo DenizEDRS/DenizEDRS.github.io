@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thread with Function Parameters</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <h1>Thread with Function Parameters</h1>
+    </header>
+    <main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+
+        <h2>Example 6: Thread with Function Parameters</h2>
+        <p>Filename: <code>6.md</code></p>
+        <section>
+            <p>This example shows how to pass parameters to a thread function.</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+
+void printMessage(std::string message) {
+    std::cout << message &lt;&lt; std::endl;
+}
+
+int main() {
+    std::string message = "Hello from a thread with parameters!";
+    std::thread t(printMessage, message);
+    t.join();
+    return 0;
+}
+            </code></pre>
+            <p>Compile with:</p>
+            <pre><code class="lang-bash">g++ -std=c++11 -pthread -o parameter_thread 6.cpp
+            </code></pre>
+        </section>
+    </main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <footer>
+        <p>&copy; 2023 Thread with Function Parameters. All rights reserved.</p>
+    </footer>
+</body>
+</html>

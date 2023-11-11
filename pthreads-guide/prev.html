@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threading Cheat Sheet for C/C++</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Threading Cheat Sheet for C/C++</h1>
+    </header>
+    <nav>
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#posix-threads-pthreads-in-c">POSIX Threads (pthreads) in C</a></li>
+            <li><a href="#c11-thread-library">C++11 Thread Library</a></li>
+            <li><a href="#compilation">Compilation</a></li>
+            <li><a href="#examples">Examples</a></li>
+        </ul>
+    </nav>
+    <main>
+        <h1 id="posix-threads-pthreads-in-c">POSIX Threads (pthreads) in C</h1>
+        <p>POSIX threads, or pthreads, is a POSIX standard for threads, providing a set of APIs to create and manage threads in a Unix/Linux environment.</p>
+        
+        <h2 id="creating-and-exiting-threads">Creating and Exiting Threads</h2>
+        <p>To create a thread, you use <code>pthread_create</code>, and to exit a thread, you use <code>pthread_exit</code>.</p>
+        <pre><code class="lang-c">#include &lt;pthread.h&gt;
+#include &lt;stdio.h&gt;
+
+// Thread function to be executed by all threads
+void *myThreadFun(void *vargp) {
+    printf("Hello from new thread - got %d\n", *((int*)vargp));
+    pthread_exit(NULL);
+}
+
+int main() {
+    pthread_t thread_id;
+    int value = 42;
+    printf("Before Thread\n");
+    pthread_create(&thread_id, NULL, myThreadFun, (void *)&value);
+    // Other code
+    pthread_join(thread_id, NULL);
+    printf("After Thread\n");
+    exit(0);
+}
+        </code></pre>
+
+        <h2 id="thread-synchronization">Thread Synchronization</h2>
+        <p>Synchronization is crucial in concurrent programming to prevent race conditions. Mutexes are used to protect data integrity when threads access shared data.</p>
+        
+        <h3 id="mutex-initialization">Mutex Initialization</h3>
+        <pre><code class="lang-c">pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+        </code></pre>
+
+        <h3 id="mutex-lock-and-unlock">Mutex Lock and Unlock</h3>
+        <pre><code class="lang-c">pthread_mutex_lock(&lock);
+// Critical section - only one thread can access this at a time
+pthread_mutex_unlock(&lock);
+        </code></pre>
+
+        <h2 id="condition-variables">Condition Variables</h2>
+        <p>Condition variables are used to block a thread until a particular condition is met.</p>
+        <pre><code class="lang-c">pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+
+// Thread function
+void *threadFunction(void *arg) {
+    pthread_mutex_lock(&lock);
+    pthread_cond_wait(&cond, &lock); // Wait for the condition
+    // Proceed after the condition is signaled
+    pthread_mutex_unlock(&lock);
+    pthread_exit(NULL);
+}
+        </code></pre>
+
+        <h2 id="joining-and-detaching-threads">Joining and Detaching Threads</h2>
+        <p>Joining a thread makes the calling thread wait until the specified threadid thread terminates.</p>
+        <pre><code class="lang-c">pthread_join(thread_id, NULL);
+        </code></pre>
+        <p>Detaching a thread releases any resources once it has completed.</p>
+        <pre><code class="lang-c">pthread_detach(thread_id);
+        </code></pre>
+
+        <h2 id="thread-attributes">Thread Attributes</h2>
+        <p>Thread attributes allow you to set certain properties like stack size or scheduling policy for the threads.</p>
+        <pre><code class="lang-c">pthread_attr_t attr;
+pthread_attr_init(&attr);
+pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+        </code></pre>
+
+        <h2 id="thread-cleanup">Thread-Cleanup</h2>
+        <p>Once you are done with mutexes and condition variables, you should destroy them to free up resources.</p>
+        <pre><code class="lang-c">pthread_mutex_destroy(&lock);
+pthread_cond_destroy(&cond);
+        </code></pre>
+        <p>Remember to link the pthread library when compiling your C program:</p>
+        <pre><code class="lang-bash">gcc -o my_program my_program.c -pthread
+        </code></pre>
+        <p>This chapter covers the basic use of POSIX threads in C. Always refer to the detailed documentation for a thorough understanding and best practices.</p>
+
+        <h1 id="c11-thread-library">C++11 Thread Library</h1>
+        <p>C++11 introduced a thread library which provides classes and functions to manage threads.</p>
+
+        <h2 id="header-files">Header Files</h2>
+        <p>To use the C++11 threading facilities, include the required headers.</p>
+        <pre><code class="lang-cpp">#include &lt;thread&gt;
+#include &lt;mutex&gt;
+#include &lt;condition_variable&gt;
+        </code></pre>
+        <!-- Previous content -->
+
+        <h2 id="creating-and-joining-threads">Creating and Joining Threads</h2>
+        <p>A thread is created by instantiating an <code>std::thread</code> object and passing a callable entity to its constructor.</p>
+        <pre><code class="lang-cpp">void threadFunction() {
+    // Code to execute in the thread.
+}
+
+int main() {
+    std::thread t(threadFunction); // Create a thread running threadFunction
+    t.join(); // Wait for the thread to finish
+    return 0;
+}
+        </code></pre>
+
+        <h2 id="mutexes">Mutexes</h2>
+        <p>Mutexes in C++11 are used to protect shared data from being simultaneously accessed by multiple threads.</p>
+        <pre><code class="lang-cpp">std::mutex mtx;
+
+void safeFunction() {
+    std::lock_guard<std::mutex> lock(mtx); // RAII style mutex locking
+    // Code that modifies shared data
+}
+        </code></pre>
+
+        <h2 id="condition-variables">Condition Variables</h2>
+        <p>Condition variables are used to synchronize threads via notifications.</p>
+        <pre><code class="lang-cpp">std::condition_variable cv;
+bool ready = false;
+std::mutex mtx;
+
+void workerThread() {
+    std::unique_lock<std::mutex> lock(mtx);
+    cv.wait(lock, []{ return ready; }); // Wait until 'ready' becomes true
+    // Do work after the wait
+}
+
+int main() {
+    std::thread worker(workerThread);
+    {
+        std::lock_guard<std::mutex> lk(mtx);
+        ready = true; // Set 'ready' to true
+    }
+    cv.notify_one(); // Notify the waiting thread
+    worker.join(); // Wait for the thread to finish
+    return 0;
+}
+        </code></pre>
+
+        <h2 id="async-and-future">Async and Future</h2>
+        <p>C++11 provides <code>std::async</code>, which can run a task asynchronously (potentially in a new thread) and return a <code>std::future</code> that will hold the result.</p>
+        <pre><code class="lang-cpp">#include &lt;future&gt;
+
+int performComputation() {
+    // Compute and return result
+    return 42;
+}
+
+int main() {
+    std::future<int> result = std::async(performComputation);
+    std::cout << "The result is " << result.get() << std::endl; // get() waits for the computation to finish and retrieves the result
+    return 0;
+}
+        </code></pre>
+
+        <h2 id="thread-local-storage">Thread Local Storage</h2>
+        <p>C++11 introduced thread local storage, allowing variables to have a distinct value for each thread.</p>
+        <pre><code class="lang-cpp">thread_local int threadSpecificData = 0;
+
+void threadFunction() {
+    threadSpecificData = /* some value unique to the thread */;
+}
+        </code></pre>
+
+        <h1 id="compilation">Compilation</h1>
+        <p>Make sure to enable C++11 (or later) support in your compiler and link any necessary libraries.</p>
+        <pre><code class="lang-bash">g++ -std=c++11 -pthread -o my_program my_program.cpp
+        </code></pre>
+
+        <h1 id="examples">Examples</h1>
+        <p>Here are some examples demonstrating the use of threads in C and C++.</p>
+        <ul>
+            <li><a href="1.html">Basic Thread Creation and Joining</a></li>
+            <li><a href="2.html">Using a Lambda as a Thread Function</a></li>
+            <li><a href="3.html">Mutex for Thread Synchronization</a></li>
+            <li><a href="4.html">Thread with Member Function</a></li>
+            <li><a href="5.html">Detaching Threads</a></li>
+            <li><a href="6.html">Thread with Function Parameters</a></li>
+            <li><a href="7.html">Using <code>std::async</code> and <code>std::future</code></a></li>
+            <li><a href="8.html">Parallel Array Operations with Threads</a></li>
+  
+        </ul>
+
+
+
+
+    </main>
+
+  
+    <footer>
+        
+        
+        <p>&copy; 2023 Threading Cheat Sheet for C/C++. All rights reserved.</p>
+    </footer>
+</body>
+</html>

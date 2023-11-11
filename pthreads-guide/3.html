@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutex for Thread Synchronization</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Mutex for Thread Synchronization</h1>
+    </header>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <main>
+        <h2>Example 3: Mutex for Thread Synchronization</h2>
+        <p>Filename: <code>mutex_thread.md</code></p>
+        <section>
+            <p>This example uses a mutex to synchronize threads to ensure safe access to shared data.</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+#include &lt;mutex&gt;
+
+std::mutex mtx; // mutex for critical section
+
+void printBlock(int n, char c) {
+    mtx.lock();
+    for (int i = 0; i < n; ++i) { std::cout << c; }
+    std::cout << '\n';
+    mtx.unlock();
+}
+
+int main() {
+    std::thread th1(printBlock, 50, '*');
+    std::thread th2(printBlock, 50, '$');
+
+    th1.join();
+    th2.join();
+
+    return 0;
+}
+            </code></pre>
+            <p>Compile with:</p>
+            <pre><code class="lang-bash">g++ -std=c++11 -pthread -o mutex_thread mutex_thread.cpp
+            </code></pre>
+        </section>
+    </main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <footer>
+        <p>&copy; 2023 Mutex for Thread Synchronization. All rights reserved.</p>
+    </footer>
+</body>
+</html>

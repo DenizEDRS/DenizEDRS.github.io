@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Thread Creation and Joining</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Basic Thread Creation and Joining</h1>
+    </header>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <main>
+        <h2>Example 1: Basic Thread Creation and Joining</h2>
+        <p>Filename: <code>basic_thread.md</code></p>
+        <section>
+            <p>This example demonstrates the creation and joining of a simple thread in C++11.</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;thread&gt;
+
+void helloFunction() {
+    std::cout << "Hello from a thread!" &lt;&lt; std::endl;
+}
+
+int main() {
+    std::thread t(helloFunction); // Launch a thread
+    t.join(); // Join the thread with the main thread
+    return 0;
+}
+            </code></pre>
+            <p>Compile with:</p>
+            <pre><code class="lang-bash">g++ -std=c++11 -pthread -o basic_thread basic_thread.cpp
+            </code></pre>
+        </section>
+    </main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+    <footer>
+        <p>&copy; 2023 Basic Thread Creation and Joining. All rights reserved.</p>
+    </footer>
+</body>
+</html>
