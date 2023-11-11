@@ -83,17 +83,16 @@ footer {
     text-align: center;
     text-decoration: none;
     border-radius: 0; /* No border radius */
-    color: #333333
 }
 
 /* CUDA Guide Button */
 .cuda-button {
-    background-color: #76b900; /* CUDA green */
+    background-color: #444444; /* CUDA green */
 }
 
 /* Pthreads Guide Button */
 .pthreads-button {
-    background-color: #007bff; /* Pthreads blue */
+    background-color: #444444; /* Pthreads blue */
 }
 
 .button:hover {
