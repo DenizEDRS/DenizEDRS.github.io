@@ -61,14 +61,34 @@ footer {
     color: #275c5e;
 }
 
+/* Guide Selection Buttons */
+.button-container {
+    text-align: center;
+    margin: 20px 0;
+}
+
 .button {
     display: inline-block;
-    padding: 10px 10px;
-    margin: 10px 0 10px 20px; /* 20px left margin */
-    background-color: #242525;
+    padding: 15px 30px;
+    margin: 10px;
+    background-color: #242525; /* Default button color */
     color: white;
-    text-align: center;
     text-decoration: none;
     border-radius: 5px;
-    font-size: 12px;
+    font-size: 16px; /* Increased font size */
+    transition: background-color 0.3s;
+}
+
+/* CUDA Guide Button */
+.cuda-button {
+    background-color: #76b900; /* CUDA green */
+}
+
+/* Pthreads Guide Button */
+.pthreads-button {
+    background-color: #007bff; /* Pthreads blue */
+}
+
+.button:hover {
+    opacity: 0.8;
 }
