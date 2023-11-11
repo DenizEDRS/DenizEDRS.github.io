@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handling 2D Arrays in CUDA Kernels</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Handling 2D Arrays in CUDA Kernels</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates how to work with 2D arrays in CUDA kernels. Handling 2D arrays involves calculating the correct indices for each element and is a common requirement in many GPU-accelerated applications, such as image and signal processing.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given a 2D array (matrix) <code>A</code>, the goal is to perform some operation on each element of this array. For simplicity, we'll consider an operation that doubles each element of the matrix.</p>
+        </section>
+
+        <!-- CUDA Kernel for 2D Array Processing -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for 2D Array Processing</h2>
+            <p>The CUDA kernel for processing a 2D array is as follows:</p>
+            <pre><code class="lang-cpp">__global__ void process2DArray(int *A, int width, int height) {
+    int x = blockDim.x * blockIdx.x + threadIdx.x;
+    int y = blockDim.y * blockIdx.y + threadIdx.y;
+    if (x < width && y < height) {
+        int index = y * width + x;
+        A[index] *= 2; // Example operation: doubling the element
+    }
+}</code></pre>
+            <p>This kernel calculates the 2D indices (<code>x</code>, <code>y</code>) for each thread and performs the operation on the corresponding element if the indices are within the bounds of the array.</p>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <p>The host code involves allocating memory, initializing the array, and launching the kernel:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for brevity
+
+int main() {
+    int width = 1024;
+    int height = 768;
+    size_t size = width * height * sizeof(int);
+
+    // Allocate and initialize the array on the host
+    int *h_A = (int *)malloc(size);
+    for (int i = 0; i &lt; width * height; i++) {
+        h_A[i] = i;
+    }
+
+    // Allocate memory on the device
+    int *d_A;
+    cudaMalloc(&d_A, size);
+
+    // Copy data from host to device
+    cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);
+
+    // Kernel launch
+    dim3 threadsPerBlock(16, 16);
+    dim3 blocksPerGrid((width + threadsPerBlock.x - 1) / threadsPerBlock.x,
+                       (height + threadsPerBlock.y - 1) / threadsPerBlock.y);
+    process2DArray&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_A, width, height);
+
+    // Copy result back to host
+    cudaMemcpy(h_A, d_A, size, cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(d_A);
+    free(h_A);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>To compile the program, use the NVCC compiler:</p>
+            <pre><code>nvcc -o process_2d_array process_2d_array.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This example illustrates how to handle 2D arrays in CUDA kernels, including index calculation and memory management. Understanding how to work with 2D data structures is crucial for many advanced CUDA applications.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Handling 2D Arrays in CUDA Kernels. All rights reserved.</p>
+   

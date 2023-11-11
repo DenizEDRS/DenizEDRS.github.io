@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUDA Kernel Error Handling Techniques</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>CUDA Kernel Error Handling Techniques</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates basic error handling within a CUDA kernel. Error handling in CUDA kernels is different from traditional C++ programming due to the nature of parallel execution and the division between host and device code.</p>
+        </section>
+
+        <!-- Overview -->
+        <section id="overview">
+            <h2>Overview</h2>
+            <p>Error handling in CUDA is usually performed by returning error codes from device functions to the host, where they can be handled appropriately. Due to the parallel nature of CUDA, traditional exception handling (like try-catch blocks) is not applicable.</p>
+        </section>
+
+        <!-- CUDA Kernel with Error Handling -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel with Error Handling</h2>
+            <p>Here's a simple CUDA kernel that includes basic error checking:</p>
+            <pre><code class="lang-cpp">__global__ void errorHandlingKernel(int *data, int N, int *errorFlag) {
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    if (index < N) {
+        // Perform operations
+        // Example error condition: data overflow
+        if (data[index] > 1000) {
+            *errorFlag = 1;
+        }
+    }
+}</code></pre>
+            <p>In this kernel, an error flag is used to indicate if an error has occurred. The flag is then checked on the host side after kernel execution.</p>
+        </section>
+
+        <!-- Host Code for Error Checking -->
+        <section id="host-code">
+            <h2>Host Code for Error Checking</h2>
+            <p>The host code is responsible for launching the kernel and checking for errors:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+int main() {
+    // ... (memory allocation and data initialization) ...
+
+    // Allocate device memory for error flag
+    int *d_errorFlag;
+    cudaMalloc(&d_errorFlag, sizeof(int));
+    cudaMemset(d_errorFlag, 0, sizeof(int)); // Initialize to 0
+
+    // Kernel launch
+    errorHandlingKernel&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_data, N, d_errorFlag);
+
+    // Copy error flag back to host and check
+    int h_errorFlag = 0;
+    cudaMemcpy(&h_errorFlag, d_errorFlag, sizeof(int), cudaMemcpyDeviceToHost);
+    if (h_errorFlag != 0) {
+        std::cerr &lt;&lt; "Error occurred in the kernel execution." &lt;&lt; std::endl;
+    }
+
+    // ... (cleanup code) ...
+    cudaFree(d_errorFlag);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>Compile the program using NVCC:</p>
+            <pre><code>nvcc -o error_handling error_handling.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This example highlights a basic approach for handling errors in CUDA kernels. Due to the parallel execution model, error handling in CUDA often involves setting flags or similar mechanisms to communicate issues back to the host for further action.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 CUDA Kernel Error Handling Techniques. All rights reserved.</p>
+    </footer>
+</body>
+</html>

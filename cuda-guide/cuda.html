@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUDA C++ Cheat Sheet</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>CUDA C++ Cheat Sheet</h1>
+    </header>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+
+    <nav>
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#introduction-to-cuda">Introduction to CUDA</a></li>
+            <li><a href="#cuda-environment-setup">CUDA Environment Setup</a></li>
+            <li><a href="#basic-cuda-kernel">Basic CUDA Kernel</a></li>
+            <li><a href="#memory-management">Memory Management</a></li>
+            <li><a href="#kernel-launch-parameters">Kernel Launch Parameters</a></li>
+            <li><a href="#synchronization-and-error-handling">Synchronization and Error Handling</a></li>
+            <li><a href="#shared-memory-and-bank-conflicts">Shared Memory and Bank Conflicts</a></li>
+        </ul>
+    </nav>
+    <main>
+        <!-- Introduction to CUDA -->
+        <section id="introduction-to-cuda">
+            <h2>Introduction to CUDA</h2>
+            <p>CUDA (Compute Unified Device Architecture) is a parallel computing platform and programming model developed by Nvidia for general-purpose computing on its own GPUs (Graphics Processing Units). It enables dramatic increases in computing performance by harnessing the power of the graphics processing unit (GPU).</p>
+        </section>
+
+        <!-- CUDA Environment Setup -->
+        <section id="cuda-environment-setup">
+            <h2>CUDA Environment Setup</h2>
+            <p>Before starting with CUDA programming, ensure you have the CUDA Toolkit installed and configured. The toolkit includes the NVCC compiler and other necessary tools. Verify the installation with <code>nvcc --version</code>.</p>
+        </section>
+
+        <!-- Basic CUDA Kernel -->
+        <section id="basic-cuda-kernel">
+            <h2>Basic CUDA Kernel</h2>
+            <p>Kernels are functions that run on the GPU. Here's a basic example of a CUDA kernel for vector addition:</p>
+            <pre><code class="lang-cpp">__global__ void add(int *a, int *b, int *c, int N) {
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    if (index < N) {
+        c[index] = a[index] + b[index];
+    }
+}
+
+// Kernel invocation
+// add&lt;&lt;&lt;numBlocks, blockSize&gt;&gt;&gt;(d_a, d_b, d_c, N);
+            </code></pre>
+        </section>
+
+        <!-- Memory Management -->
+        <section id="memory-management">
+            <h2>Memory Management</h2>
+            <!-- Device Memory Allocation -->
+            <h3 id="device-memory-allocation">Device Memory Allocation</h3>
+            <p>Memory on the GPU device needs to be explicitly allocated and freed using <code>cudaMalloc</code> and <code>cudaFree</code>.</p>
+            <pre><code class="lang-cpp">int *d_array;
+size_t size = N * sizeof(int);
+cudaMalloc((void **)&d_array, size);
+// ...
+cudaFree(d_array);
+            </code></pre>
+
+            <!-- Memory Transfer Between Host and Device -->
+            <h3 id="memory-transfer-between-host-and-device">Memory Transfer Between Host and Device</h3>
+            <p>Data transfer between the host and device memory is performed using <code>cudaMemcpy</code>.</p>
+            <pre><code class="lang-cpp">int h_array[N], *d_array;
+// ... initialize h_array ...
+cudaMemcpy(d_array, h_array, size, cudaMemcpyHostToDevice);
+// ... kernel execution ...
+cudaMemcpy(h_array, d_array, size, cudaMemcpyDeviceToHost);
+            </code></pre>
+
+            <!-- Unified Memory -->
+            <h3 id="unified-memory">Unified Memory</h3>
+            <p>Unified Memory simplifies memory management by allowing the CPU and GPU to share the same memory space.</p>
+            <pre><code class="lang-cpp">int *array;
+cudaMallocManaged(&array, size);
+// Use array on both host and device
+cudaFree(array);
+            </code></pre>
+        </section>
+
+        <!-- Kernel Launch Parameters -->
+        <section id="kernel-launch-parameters">
+            <h2>Kernel Launch Parameters</h2>
+            <p>Kernels are launched with a configuration specifying the number of thread blocks and the number of threads per block.</p>
+            <pre><code class="lang-cpp">dim3 threadsPerBlock(256);
+dim3 numBlocks((N + threadsPerBlock - 1) / threadsPerBlock);
+kernelFunction&lt;&lt;&lt;numBlocks, threadsPerBlock&gt;&gt;&gt;(/* arguments */);
+            </code></pre>
+        </section>
+
+        <!-- Synchronization and Error Handling -->
+        <section id="synchronization-and-error-handling">
+            <h2>Synchronization and Error Handling</h2>
+            <p>Synchronization ensures that memory operations are completed before proceeding. CUDA error handling checks for errors in kernel launches and API calls.</p>
+            <pre><code class="lang-cpp">cudaDeviceSynchronize();
+cudaError_t error = cudaGetLastError();
+if (error != cudaSuccess) {
+    // Handle error
+}
+            </code></pre>
+        </section>
+
+        <!-- Shared Memory and Bank Conflicts -->
+        <section id="shared-memory-and-bank-conflicts">
+            <h2>Shared Memory and Bank Conflicts</h2>
+            <p>Shared memory is a faster but limited memory accessible by all threads within a block. Bank conflicts in shared memory can degrade performance and should be minimized.</p>
+            <pre><code class="lang-cpp">__global__ void sharedMemoryKernel(/* arguments */) {
+    __shared__ int sharedArray[256];
+    // Use sharedArray within the block
+}
+            </code></pre>
+        </section>
+
+        <!-- ... -->
+    </main>
+    <a href="prev.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 CUDA C++ Cheat Sheet. All rights reserved.</p>
+    </footer>
+</body>
+</html>

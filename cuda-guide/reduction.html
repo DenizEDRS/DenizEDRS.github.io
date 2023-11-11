@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Reduction in CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Parallel Reduction in CUDA</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates parallel reduction in CUDA, a fundamental pattern for many parallel algorithms. Reduction is used to compute a single result from a set of input elements, like the sum or maximum of an array.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given an array of <code>N</code> elements, the goal is to compute the sum of these elements.</p>
+        </section>
+
+        <!-- CUDA Kernel for Reduction -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for Reduction</h2>
+            <p>Parallel reduction in CUDA can be complex due to the need to manage data synchronization across threads and blocks. Here is a simple version of the reduction kernel:</p>
+            <pre><code class="lang-cpp">__global__ void reduceKernel(int *input, int *output, int N) {
+    extern __shared__ int sharedData[];
+
+    unsigned int tid = threadIdx.x;
+    unsigned int i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < N) {
+        sharedData[tid] = input[i];
+    } else {
+        sharedData[tid] = 0;
+    }
+    __syncthreads();
+
+    // Do reduction in shared memory
+    for (unsigned int s = 1; s < blockDim.x; s *= 2) {
+        if (tid % (2 * s) == 0) {
+            sharedData[tid] += sharedData[tid + s];
+        }
+        __syncthreads();
+    }
+
+    // Write the result for this block to output
+    if (tid == 0) {
+        output[blockIdx.x] = sharedData[0];
+    }
+}</code></pre>
+            <p>This kernel performs reduction within each block and writes the result per block to the output array. A second reduction step may be needed to sum these partial results.</p>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <p>The host code manages memory and kernel launches:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for brevity
+
+int main() {
+    int N = 10000; // Size of array
+    size_t size = N * sizeof(int);
+
+    // Allocate and initialize memory on the host
+    int *h_input = (int *)malloc(size);
+    // ... Initialize h_input ...
+
+    // Allocate memory on the device
+    int *d_input, *d_output;
+    cudaMalloc(&d_input, size);
+    cudaMalloc(&d_output, sizeof(int) * N);
+
+    // Copy data from host to device
+    cudaMemcpy(d_input, h_input, size, cudaMemcpyHostToDevice);
+
+    // Kernel launch
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+    reduceKernel&lt;&lt;&lt;blocksPerGrid, threadsPerBlock, threadsPerBlock * sizeof(int)&gt;&gt;&gt;(d_input, d_output, N);
+
+    // Copy partial results back to host and finish reduction
+    int *h_partial_results = (int *)malloc(blocksPerGrid * sizeof(int));
+    cudaMemcpy(h_partial_results, d_output, blocksPerGrid * sizeof(int), cudaMemcpyDeviceToHost);
+
+    int totalSum = 0;
+    for (int i = 0; i &lt; blocksPerGrid; i++) {
+        totalSum += h_partial_results[i];
+    }
+
+    // Cleanup
+    cudaFree(d_input); cudaFree(d_output);
+    free(h_input); free(h_partial_results);
+
+    std::cout &lt;&lt; "Total sum: " &lt;&lt; totalSum &lt;&lt; std::endl;
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>Compile the program with NVCC:</p>
+            <pre><code>nvcc -o reduction reduction.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This example illustrates a basic parallel reduction in CUDA. Advanced reduction techniques can further optimize performance, especially for large arrays. Parallel reduction is a key technique in many high-performance computing applications.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Parallel Reduction in CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>

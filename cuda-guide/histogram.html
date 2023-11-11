@@ -1,0 +1,106 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histogram Calculation in CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Histogram Calculation in CUDA</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates how to compute a histogram in CUDA. A histogram is a representation of the distribution of numerical data. In this case, we will calculate a simple histogram where each bin counts the number of occurrences of data values within a range.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given an array of data elements (e.g., image pixels), the goal is to compute a histogram where each bin represents the count of elements falling into a certain range.</p>
+        </section>
+
+        <!-- CUDA Kernel for Histogram Calculation -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for Histogram Calculation</h2>
+            <p>The CUDA kernel for histogram calculation can be approached in various ways, but a simple version is as follows:</p>
+            <pre><code class="lang-cpp">__global__ void histogramKernel(int *data, int *hist, int N, int numBins) {
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    if (index < N) {
+        int bin = data[index]; // Assuming data is already mapped to bin numbers
+        atomicAdd(&hist[bin], 1);
+    }
+}</code></pre>
+            <p>This kernel increments the histogram bin corresponding to each data element. <code>atomicAdd</code> is used to avoid race conditions as multiple threads might update the same bin simultaneously.</p>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <p>The host code involves allocating memory, initializing data, and launching the kernel:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for brevity
+
+int main() {
+    int N = 10000; // Number of data elements
+    int numBins = 256; // Number of histogram bins
+    size_t dataSize = N * sizeof(int);
+    size_t histSize = numBins * sizeof(int);
+
+    // Allocate and initialize data on the host
+    int *h_data = (int *)malloc(dataSize);
+    int *h_hist = (int *)malloc(histSize);
+    memset(h_hist, 0, histSize);
+    // Initialize h_data with your data
+
+    // Allocate memory on the device
+    int *d_data, *d_hist;
+    cudaMalloc(&d_data, dataSize);
+    cudaMalloc(&d_hist, histSize);
+    cudaMemcpy(d_data, h_data, dataSize, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_hist, h_hist, histSize, cudaMemcpyHostToDevice);
+
+    // Kernel launch
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+    histogramKernel&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_data, d_hist, N, numBins);
+
+    // Copy result back to host
+    cudaMemcpy(h_hist, d_hist, histSize, cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(d_data); cudaFree(d_hist);
+    free(h_data); free(h_hist);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>To compile this CUDA program, use the NVCC compiler:</p>
+            <pre><code>nvcc -o histogram histogram.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This histogram example in CUDA demonstrates parallel computation's power in handling large data sets efficiently. The use of atomic operations is crucial for correctness when multiple threads update shared data. This approach can be further optimized to reduce the use of atomic operations and improve memory access patterns.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Histogram Calculation in CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+ 

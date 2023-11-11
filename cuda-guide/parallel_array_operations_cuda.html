@@ -1,0 +1,108 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parallel Array Operations in CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Parallel Array Operations in CUDA</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates how to perform operations on parallel arrays using CUDA. It showcases how you can set values in one array based on the elements' indices in another array, a common pattern in parallel computing.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given two arrays, <code>inputArray</code> and <code>outputArray</code>, of size <code>N</code>, the goal is to set each element in <code>outputArray</code> based on the corresponding index's value in <code>inputArray</code>. For example, we might double the value at each index.</p>
+        </section>
+
+        <!-- CUDA Kernel for Parallel Array Operations -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for Parallel Array Operations</h2>
+            <p>The CUDA kernel for this operation is as follows:</p>
+            <pre><code class="lang-cpp">__global__ void parallelArrayOperation(const int *inputArray, int *outputArray, int N) {
+    int index = blockDim.x * blockIdx.x + threadIdx.x;
+    if (index < N) {
+        // Example operation: doubling the value
+        outputArray[index] = 2 * inputArray[index];
+    }
+}</code></pre>
+            <p>This kernel calculates the operation for each element in parallel, where each thread handles one element of the array. The conditional check ensures no out-of-bound accesses.</p>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <p>The host code handles memory management and kernel launch:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for simplicity
+
+int main() {
+    int N = 10000; // Size of arrays
+    size_t size = N * sizeof(int);
+
+    // Allocate and initialize memory on the host
+    int *h_inputArray, *h_outputArray;
+    h_inputArray = (int *)malloc(size);
+    h_outputArray = (int *)malloc(size);
+
+    for (int i = 0; i < N; i++) {
+        h_inputArray[i] = i; // Initializing input array
+    }
+
+    // Allocate memory on the device
+    int *d_inputArray, *d_outputArray;
+    cudaMalloc(&d_inputArray, size);
+    cudaMalloc(&d_outputArray, size);
+
+    // Copy data from host to device
+    cudaMemcpy(d_inputArray, h_inputArray, size, cudaMemcpyHostToDevice);
+
+    // Kernel launch parameters
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+    parallelArrayOperation&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_inputArray, d_outputArray, N);
+
+    // Copy result back to host
+    cudaMemcpy(h_outputArray, d_outputArray, size, cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(d_inputArray); cudaFree(d_outputArray);
+    free(h_inputArray); free(h_outputArray);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>Use the NVCC compiler to compile the program:</p>
+            <pre><code>nvcc -o parallel_array_operations parallel_array_operations.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This example demonstrates a basic yet common pattern in CUDA programming where operations are performed on parallel arrays. It illustrates the process of setting up CUDA kernels and memory management for parallel processing of array data.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Parallel Array Operations in CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>
+ 

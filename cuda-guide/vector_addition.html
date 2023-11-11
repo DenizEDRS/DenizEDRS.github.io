@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Addition in CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Vector Addition in CUDA</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates how to perform vector addition in CUDA. Vector addition is one of the most fundamental operations in parallel computing and serves as a great starting point for learning CUDA programming.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given two vectors (arrays) <code>A</code> and <code>B</code>, each containing <code>N</code> elements, the goal is to compute the vector <code>C</code> where each element <code>C[i]</code> is the sum of <code>A[i]</code> and <code>B[i]</code>.</p>
+        </section>
+
+        <!-- CUDA Kernel for Vector Addition -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for Vector Addition</h2>
+            <p>The CUDA kernel is written as follows:</p>
+            <pre><code class="lang-cpp">__global__ void vectorAdd(const int *A, const int *B, int *C, int N) {
+    int i = blockDim.x * blockIdx.x + threadIdx.x;
+    if (i < N) {
+        C[i] = A[i] + B[i];
+    }
+}</code></pre>
+            <p>In this kernel, each thread calculates one element of the vector <code>C</code>. The check <code>if (i &lt; N)</code> ensures that we do not perform out-of-bound memory access in case where <code>N</code> is not a multiple of the block size.</p>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <p>The host code is responsible for memory allocation, data initialization, kernel launch, and cleanup:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for brevity
+
+int main() {
+    int N = 10000; // Size of vectors
+    size_t size = N * sizeof(int);
+
+    // Allocate memory on the host
+    int *h_A, *h_B, *h_C;
+    h_A = (int *)malloc(size);
+    h_B = (int *)malloc(size);
+    h_C = (int *)malloc(size);
+
+    // Initialize vectors on the host
+    for (int i = 0; i &lt; N; i++) {
+        h_A[i] = i;
+        h_B[i] = i;
+    }
+
+    // Allocate memory on the device
+    int *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size);
+    cudaMalloc(&d_B, size);
+    cudaMalloc(&d_C, size);
+
+    // Copy data from host to device
+    cudaMemcpy(d_A, h_A, size, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size, cudaMemcpyHostToDevice);
+
+    // Kernel launch
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+    vectorAdd&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_A, d_B, d_C, N);
+
+    // Copy result back to host
+    cudaMemcpy(h_C, d_C, size, cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(d_A); cudaFree(d_B); cudaFree(d_C);
+    free(h_A); free(h_B); free(h_C);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>To compile this program, use the NVCC compiler:</p>
+            <pre><code>nvcc -o vector_addition vector_addition.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This example covers the basic structure of a CUDA program, including memory management, kernel implementation, and launching kernels from the host. Vector addition is a simple yet powerful example to understand the basics of CUDA programming.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Vector Addition in CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>

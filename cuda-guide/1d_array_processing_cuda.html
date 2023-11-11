@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1D Array Processing with CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>1D Array Processing with CUDA</h1>
+    </header>
+
+    
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates how to process a 1D array in CUDA, performing a simple operation on each element of the array. This is a fundamental technique in CUDA programming, useful for a wide range of parallel processing tasks.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given a 1D array <code>arr</code> containing <code>N</code> elements, the goal is to perform a specific operation on each element. In this example, we'll double each element of the array.</p>
+        </section>
+
+        <!-- CUDA Kernel for 1D Array Processing -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for 1D Array Processing</h2>
+            <p>Here's the CUDA kernel that processes each element of the array:</p>
+            <pre><code class="lang-cpp">__global__ void processArray(int *arr, int N) {
+    int index = blockDim.x * blockIdx.x + threadIdx.x;
+    if (index < N) {
+        arr[index] = arr[index] * 2; // Example operation: doubling each element
+    }
+}</code></pre>
+            <p>This kernel calculates the index of each element based on the thread and block IDs and then doubles the value at that index. The conditional check ensures that we don't access memory outside the array bounds.</p>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <p>The host code handles memory allocation, initialization, kernel launching, and cleanup:</p>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for brevity
+
+int main() {
+    int N = 10000; // Number of elements in the array
+    size_t size = N * sizeof(int);
+
+    // Allocate and initialize the array on the host
+    int *h_arr = (int *)malloc(size);
+    for (int i = 0; i &lt; N; i++) {
+        h_arr[i] = i; // Initialize with some values, e.g., 0, 1, 2, ...
+    }
+
+    // Allocate memory on the device
+    int *d_arr;
+    cudaMalloc(&d_arr, size);
+
+    // Copy data from host to device
+    cudaMemcpy(d_arr, h_arr, size, cudaMemcpyHostToDevice);
+
+    // Kernel launch
+    int threadsPerBlock = 256;
+    int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+    processArray&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_arr, N);
+
+    // Copy the modified array back to the host
+    cudaMemcpy(h_arr, d_arr, size, cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(d_arr);
+    free(h_arr);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>Compile the program using NVCC:</p>
+            <pre><code>nvcc -o array_processing array_processing.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>This CUDA example showcases how to perform parallel processing on a 1D array. By modifying the operation inside the kernel, this code can be adapted for various data processing tasks that benefit from parallel execution on a GPU.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 1D Array Processing with CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>

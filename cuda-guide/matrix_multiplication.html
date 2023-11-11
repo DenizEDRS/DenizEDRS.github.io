@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Multiplication in CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Matrix Multiplication in CUDA</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates matrix multiplication in CUDA, a fundamental operation in many scientific and engineering computations. It's a great way to understand how to deal with more complex data structures like 2D arrays in CUDA.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Given two matrices <code>A</code> (of size <code>MxN</code>) and <code>B</code> (of size <code>NxP</code>), the goal is to compute the matrix <code>C</code> (of size <code>MxP</code>) where each element <code>C[i][j]</code> is the sum of the product of the corresponding elements from the i-th row of <code>A</code> and the j-th column of <code>B</code>.</p>
+        </section>
+
+        <!-- CUDA Kernel for Matrix Multiplication -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel for Matrix Multiplication</h2>
+            <p>In this kernel, each thread computes one element of the matrix <code>C</code>. The two nested loops in the host code that iterate over the rows and columns of the matrices are replaced by the grid of threads in the CUDA kernel.</p>
+            <pre><code class="lang-cpp">__global__ void matrixMultiply(const float *A, const float *B, float *C, int M, int N, int P) {
+    int row = blockIdx.y * blockDim.y + threadIdx.y;
+    int col = blockIdx.x * blockDim.x + threadIdx.x;
+    
+    if (row &lt; M &amp;&amp; col &lt; P) {
+        float sum = 0.0f;
+        for (int k = 0; k &lt; N; k++) {
+            sum += A[row * N + k] * B[k * P + col];
+        }
+        C[row * P + col] = sum;
+    }
+}</code></pre>
+        </section>
+
+        <!-- Host Code to Launch the Kernel -->
+        <section id="host-code">
+            <h2>Host Code to Launch the Kernel</h2>
+            <pre><code class="lang-cpp">#include &lt;iostream&gt;
+#include &lt;cuda_runtime.h&gt;
+
+// Error checking omitted for brevity
+
+int main() {
+    int M = 1000, N = 1000, P = 1000; // Dimensions of matrices
+    size_t sizeA = M * N * sizeof(float);
+    size_t sizeB = N * P * sizeof(float);
+    size_t sizeC = M * P * sizeof(float);
+
+    // Allocate and initialize matrices on the host
+    float *h_A, *h_B, *h_C;
+    h_A = (float *)malloc(sizeA);
+    h_B = (float *)malloc(sizeB);
+    h_C = (float *)malloc(sizeC);
+
+    // Initialize A and B with appropriate values
+    // ...
+
+    // Allocate matrices on the device
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, sizeA);
+    cudaMalloc(&d_B, sizeB);
+    cudaMalloc(&d_C, sizeC);
+
+    // Copy matrices from the host to the device
+    cudaMemcpy(d_A, h_A, sizeA, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, sizeB, cudaMemcpyHostToDevice);
+
+    // Kernel launch
+    dim3 threadsPerBlock(16, 16);
+    dim3 blocksPerGrid((P + threadsPerBlock.x - 1) / threadsPerBlock.x,
+                       (M + threadsPerBlock.y - 1) / threadsPerBlock.y);
+    matrixMultiply&lt;&lt;&lt;blocksPerGrid, threadsPerBlock&gt;&gt;&gt;(d_A, d_B, d_C, M, N, P);
+
+    // Copy the result matrix back to the host
+    cudaMemcpy(h_C, d_C, sizeC, cudaMemcpyDeviceToHost);
+
+    // Cleanup
+    cudaFree(d_A); cudaFree(d_B); cudaFree(d_C);
+    free(h_A); free(h_B); free(h_C);
+
+    return 0;
+}
+</code></pre>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>To compile the CUDA program:</p>
+            <pre><code>nvcc -o matrix_multiplication matrix_multiplication.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>Matrix multiplication in CUDA illustrates handling 2D data and the complexity of synchronizing threads for shared data access. It's an essential pattern in parallel computing, showcasing the power of GPUs for handling compute-intensive tasks.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Matrix Multiplication in CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimizing with Shared Memory in CUDA</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Optimizing with Shared Memory in CUDA</h1>
+    </header>
+    <main>
+        <a href="cuda.html" class="button">Go to Previous Page</a>
+
+        <section>
+            <p>This example demonstrates how to use shared memory in CUDA to optimize operations. Shared memory is a faster type of memory accessible by all threads within a block and can significantly speed up operations by reducing memory access time.</p>
+        </section>
+
+        <!-- Problem Statement -->
+        <section id="problem-statement">
+            <h2>Problem Statement</h2>
+            <p>Consider a scenario where each thread in a block needs to access data that can be shared among all threads in the block. Instead of each thread accessing global memory individually, the data can be loaded into shared memory once, and all threads can access it from there.</p>
+        </section>
+
+        <!-- CUDA Kernel Using Shared Memory -->
+        <section id="cuda-kernel">
+            <h2>CUDA Kernel Using Shared Memory</h2>
+            <p>Below is an example of a kernel that utilizes shared memory for optimizing computations:</p>
+            <pre><code class="lang-cpp">__global__ void sharedMemoryOptimization(float *input, float *output, int N) {
+    // Define shared memory
+    __shared__ float sharedData[256];
+
+    int idx = threadIdx.x + blockIdx.x * blockDim.x;
+
+    // Load data into shared memory
+    if (idx < N) {
+        sharedData[threadIdx.x] = input[idx];
+    }
+
+    __syncthreads(); // Ensure all data is loaded into shared memory
+
+    // Perform operations using sharedData
+    if (idx < N) {
+        float value = sharedData[threadIdx.x];
+        // Example operation: simple scaling
+        output[idx] = value * 2.0f;
+    }
+}</code></pre>
+            <p>In this kernel, each thread loads a piece of data into shared memory. The <code>__syncthreads()</code> function call ensures that all threads in the block have completed loading their data into shared memory before any thread starts reading from it.</p>
+        </section>
+
+        <!-- Host Code -->
+        <section id="host-code">
+            <h2>Host Code</h2>
+            <p>The host code for setting up and launching the kernel would be similar to the standard CUDA workflow, involving memory allocation, data transfer, kernel launch, and cleanup.</p>
+        </section>
+
+        <!-- Considerations -->
+        <section id="considerations">
+            <h2>Considerations</h2>
+            <ul>
+                <li>Shared memory is limited in size, so it's important to use it judiciously.</li>
+                <li>Access patterns to shared memory can affect performance due to potential bank conflicts.</li>
+                <li>Shared memory is specific to a block, meaning it can't be shared across different blocks.</li>
+            </ul>
+        </section>
+
+        <!-- Compilation -->
+        <section id="compilation">
+            <h2>Compilation</h2>
+            <p>Compile the CUDA program with NVCC:</p>
+            <pre><code>nvcc -o shared_memory_optimization shared_memory_optimization.cu</code></pre>
+        </section>
+
+        <!-- Conclusion -->
+        <section id="conclusion">
+            <h2>Conclusion</h2>
+            <p>Using shared memory is a powerful way to optimize CUDA kernels. It allows threads within a block to efficiently share data, reducing the need for slower global memory accesses and significantly improving performance for certain algorithms.</p>
+        </section>
+    </main>
+    <a href="cuda.html" class="button">Go to Previous Page</a>
+
+    <footer>
+        <p>&copy; 2023 Optimizing with Shared Memory in CUDA. All rights reserved.</p>
+    </footer>
+</body>
+</html>
