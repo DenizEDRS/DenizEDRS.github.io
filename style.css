@@ -72,17 +72,16 @@ footer {
 }
 
 .button {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 50%; /* Half the width of the container */
-    height: 100%; /* Full height of the container */
-    padding: 30px;
-    margin: 0;
-    font-size: 24px; /* Larger font size */
+    display: inline-block;
+    padding: 20px 40px;
+    margin: 20px;
+    background-color: #333333; /* Change to darker gray */
+    color: white;
     text-align: center;
     text-decoration: none;
-    border-radius: 0; /* No border radius */
+    border-radius: 10px;
+    font-size: 18px;
+    transition: background-color 0.3s, transform 0.3s;
 }
 
 /* CUDA Guide Button */
