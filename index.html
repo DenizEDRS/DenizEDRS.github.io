@@ -1,28 +1,93 @@
-z<!DOCTYPE html>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Guide Selection</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>denizedrs.github.io - Cheat Sheets</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: rgb(25, 25, 26);
+            background: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        header {
+            background: #333;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            position: absolute;
+            top: 0;
+            width: 100%;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 20px 40px;
+            margin: 20px;
+            background-color: #0d02ad;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .button:hover {
+            background-color: #242525;
+            transform: scale(1.05);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: #333;
+            color: #275c5e;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .repository-info {
+            position: absolute;
+            top: 70px;
+            width: 100%;
+            text-align: center;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Welcome to the Guides</h1>
+        <h1>Technology Cheat Sheets</h1>
     </header>
 
-    <nav>
-        <h2>Navigation</h2>
-        <!-- Your navigation items here -->
-    </nav>
+    <div class="repository-info">
+        <p>Curated by Deniz Erman Dursun</p>
+    </div>
 
-    <main>
-        <div class="button-container">
-            <a href="cuda-guide/cuda.html" class="button cuda-button">CUDA Guide</a>
-            <a href="pthreads-guide/prev.html" class="button pthreads-button">Pthreads Guide</a>
-        </div>
-    </main>
+    <div class="button-container">
+        <a href="filepath1/cuda.html" class="button">Cuda C++</a>
+        <a href="filepath2/threads.html" class="button">Threads/Pthreads</a>
+    </div>
 
     <footer>
-        <p>Deniz Dursuns Cheat Sheets for Nvidia CUDA and Threads/Pthreads in C/C++ </p>
+        <p>&copy; 2023 Deniz E. Dursun | Programming Cheat Sheets</p>
     </footer>
 </body>
 </html>
