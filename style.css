@@ -4,6 +4,9 @@ body {
     margin: 0;
     padding: 0;
     color: rgb(25, 25, 26);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Full viewport height */
     background: #f4f4f4;
 }
 
@@ -61,22 +64,25 @@ footer {
     color: #275c5e;
 }
 
-/* Guide Selection Buttons */
 .button-container {
-    text-align: center;
-    margin: 20px 0;
+    display: flex;
+    flex-grow: 1; /* Take up all available space */
+    align-items: center;
+    justify-content: center;
 }
 
 .button {
-    display: inline-block;
-    padding: 15px 30px;
-    margin: 10px;
-    background-color: #242525; /* Default button color */
-    color: white;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%; /* Half the width of the container */
+    height: 100%; /* Full height of the container */
+    padding: 30px;
+    margin: 0;
+    font-size: 24px; /* Larger font size */
+    text-align: center;
     text-decoration: none;
-    border-radius: 5px;
-    font-size: 16px; /* Increased font size */
-    transition: background-color 0.3s;
+    border-radius: 0; /* No border radius */
 }
 
 /* CUDA Guide Button */
@@ -91,4 +97,11 @@ footer {
 
 .button:hover {
     opacity: 0.8;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background: #333;
+    color: #275c5e;
 }
